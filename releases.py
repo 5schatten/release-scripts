@@ -37,20 +37,11 @@ class ReleaseFile():
         self._url = url
         self._output_file = 'releases.json'
 
-        self.display_name = {'WeTek_Play.arm': 'WeTek Play',
-                             'WeTek_Play_2.aarch64': 'WeTek Play 2',
-                             'WeTek_Core.arm': 'WeTek Core',
-                             'WeTek_Hub.aarch64': 'WeTek Hub',
-                             'Generic.x86_64': 'Generic AMD/Intel/NVIDIA (x86_64)',
-                             'RPi.arm': 'Raspberry Pi Zero and 1',
-                             'RPi2.arm': 'Raspberry Pi 2 and 3',
-                             'Odroid_C2.aarch64': 'Odroid C2',
-                             'Virtual.x86_64': 'Virtual x86_64',
-                             'S905.aarch64': 'Amlogic S905',
-                             'S805.arm': 'Amlogic S805',
-                             'Slice.arm': 'Slice (CM1)',
-                             'Slice3.arm': 'Slice (CM3)',
-                             'imx6.arm': 'Cubox-i2/i4 and Hummingboard (iMX6)',
+        self.display_name = {'Generic.x86_64': 'Generic AMD/Intel/NVIDIA (x86_64) RR',
+                             'RPi2.arm': 'Raspberry Pi 2 and 3 RR',
+                             'KVIM.arm': 'Khadas Vim RR',
+                             'Odroid_C2.arm': 'Odroid C2 RR',
+                             'S905.arm': 'Amlogic S905 RR',
                             }
 
         self.update_json = {}
@@ -105,7 +96,7 @@ class ReleaseFile():
         trains = []
         for release in files:
             # x.x.x
-            regex = re.compile(r'([0-9]+)\.[0-9]\.[0-9]+')
+            regex = re.compile(r'([0-9]+)\.[0-9]')
             if regex.search(release):
                 trains.append(regex.findall(release)[0])
             # x.90.x
@@ -126,7 +117,7 @@ class ReleaseFile():
 
         builds = []
         for release in files:
-            regex = re.compile(r'LibreELEC-(.*)-[0-9]')
+            regex = re.compile(r'LibreELEC-(.*)-[0-9]\.[0-9]-RR-[0-9]+-[0-9a-z]+')
             if regex.match(release):
                 builds.append(regex.findall(release)[0])
         builds = list(set(builds))
@@ -135,13 +126,13 @@ class ReleaseFile():
 
         for train in trains:
             self.update_json[train] = {'url': url}
-            self.update_json[train]['prettyname_regex'] = '^LibreELEC-.*-([0-9]+\.[0-9]+\.[0-9]+)'
+            self.update_json[train]['prettyname_regex'] = '^LibreELEC-.*-(RR-[0-9]+-[0-9a-z]+)'
             self.update_json[train]['project'] = {}
             major_version = re.findall(r'([0-9]+).[0-9]', train)
             for build in builds:
                 self.update_json[train]['project'][build] = {'releases': {}}
                 self.update_json[train]['project'][build]['displayName'] = self.display_name[build]
-                releases = [x for x in files if (re.search(major_version[0] + '+.[0-9].[0-9]+', x) or
+                releases = [x for x in files if (re.search(major_version[0] + '+.[0-9]', x) or
                                                  re.search(str(int(major_version[0]) - 1) + '+.90.[0-9]+', x) or
                                                  re.search(str(int(major_version[0]) - 1) + '+.95.[0-9]+', x)) and
                                                  re.search(build, x) and
@@ -211,5 +202,5 @@ if len(sys.argv) < 2:
     sys.exit(1)
 '''
 
-with ReleaseFile('/var/www/releases.libreelec.tv/', 'http://releases.libreelec.tv/') as rf:
+with ReleaseFile('/mnt/teamspace/5schatten/builds/', 'http://5schatten.libreelec.tv/builds/') as rf:
     rf.UpdateAll()

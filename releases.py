@@ -111,7 +111,7 @@ class ReleaseFile():
         trains = list(set(trains))
 
         for i,train in enumerate(trains):
-            trains[i] = 'LibreELEC-' + train + '.0'
+            trains[i] = 'LibreELEC-' + train + '.1-RR'
 
         print(trains)
 
